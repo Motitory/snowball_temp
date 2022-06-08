@@ -33,7 +33,7 @@ module.exports = class Board extends Sequelize.Model {
         view_count: {
           type: Sequelize.INTEGER.UNSIGNED,
           allowNull: true,
-          defaultValue: Sequelize.NOW,
+          // defaultValue: Sequelize.NOW,
         },
       },
       {

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <link rel="stylesheet" href="Community.css" />
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Community-add</title>
+    <title>Community-update</title>
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
@@ -13,14 +12,15 @@
       crossorigin="anonymous"
     />
   </head>
+  <link rel="stylesheet" href="/Community.css" />
   <body>
     <link
       href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200&display=swap"
       rel="stylesheet"
     />
-    <div>{% include "../nav.html" %}</div>
+    {% include "../nav.html" %}
     <section>
-      <form action="/Community" method="POST">
+      <form @submit.prevent="editForm">
         <table style="margin-top: 10vw; width: 80vw">
           <tr>
             <td>
@@ -28,12 +28,19 @@
                 type="text"
                 name="inputTitle"
                 placeholder="제목을 입력하세요."
+                value="{{board.title}}"
               />
             </td>
           </tr>
           <tr>
             <td>
-              <input type="text" name="inputWriter" placeholder="작성자 ID" />
+              <input
+                type="text"
+                name="inputWriter"
+                placeholder="작성자 ID"
+                value="{{board.boarder}}"
+                class="id"
+              />
             </td>
           </tr>
           <tr>
@@ -42,32 +49,30 @@
                 type="text"
                 name="inputContent"
                 placeholder="내용을 입력하세요."
+                value="{{board.content}}"
               />
             </td>
           </tr>
         </table>
-        <input type="submit" value="저장" />
+        <input type="submit" value="수정" id="update" />
       </form>
     </section>
-
-    <!-- 추후 자바스크립트로 추가 구현 -->
-    <!-- 추후 맨위로가기 맨아래로가기 구현 -->
-
-    <!-- <script>
-        const toggleBtn = document.querySelector('.fa-bars');
-        // const menu = document.querySelector('.navbar__menu');
-        
-
-        toggleBtn.addEventListener('click', () => {
-            menu.classList.toggle('active');
-            // sns.classList.toggle('active');
-        });
-        // toggleBtn.addEventListener('mouseover', () => {
-        //     toggleBtn.style.backgroundColor = 'blue';
-        // })
-        // toggleBtn.addEventListener('hover', () => {
-        //     toggleBtn.style.backgroundColor = 'blue';
-        // })
-    </script> -->
+    <script>
+      document.getElementById("update").addEventListener("click", function () {
+        const postId = document.querySelector(".id").value;
+        const formData = new FormData();
+        formData.append("inputTitle", this.inputTitle);
+        formData.append("inputWriter", this.inputWriter);
+        formData.append("inputContent", this.inputContent);
+        axios
+          .put(`/Community/update/${postId}`, formData)
+          .then(() => {
+            console.log("success");
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
+    </script>
   </body>
 </html>
