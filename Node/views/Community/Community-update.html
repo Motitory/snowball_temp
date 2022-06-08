@@ -20,7 +20,10 @@
     />
     {% include "../nav.html" %}
     <section>
-      <form @submit.prevent="editForm">
+      <form
+        action="/Community/update/{{board.post_id}}?_method=PUT"
+        method="POST"
+      >
         <table style="margin-top: 10vw; width: 80vw">
           <tr>
             <td>
@@ -67,6 +70,7 @@
         axios
           .put(`/Community/update/${postId}`, formData)
           .then(() => {
+            // window.location.href = "http://localhost:4301/Community";
             console.log("success");
           })
           .catch((err) => {

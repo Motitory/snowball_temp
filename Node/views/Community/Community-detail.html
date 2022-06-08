@@ -6,7 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Community-detail</title>
-    <link rel="stylesheet" href="Community-main.css" />
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
@@ -19,6 +18,7 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
+    <link rel="stylesheet" href="./Community-main.css" />
   </head>
   <body>
     <!-- <div class="black-bg">
@@ -43,7 +43,7 @@
     />
     {% include "../nav.html" %}
     <!-- <button type="button" class="btn btn-success">Success</button>    -->
-
+    <input type="hidden" value="{{board.post_id}}" class="id" />
     <table class="table table-hover" style="margin-top: 10vw; width: 80vw">
       <tr>
         <td>{{board.title}}</td>
@@ -55,32 +55,60 @@
       </tr>
     </table>
     <!-- 회원 아이디랑 작성자 아이디랑 비교해서 버튼 보여주기 -->
-    <button
-      type="button"
-      onclick="location.href='/Community/{{board.post_id}}/update'"
-      style="cursor: hand"
-      class="btn"
-      method="delete"
-    >
-      수정
-    </button>
-    <button
-      type="button"
-      style="cursor: hand"
-      class="btn delete"
-      onclick="location.href='/Community/delete/{{board.post_id}}'"
-    >
-      삭제
-    </button>
+    <div class="buttons">
+      <button
+        type="button"
+        onclick="location.href='/Community/{{board.post_id}}/update'"
+        style="cursor: hand"
+        class="btn"
+        method="delete"
+      >
+        수정
+      </button>
+      <button type="button" style="cursor: hand" class="btn" id="delete">
+        삭제
+      </button>
+    </div>
+    <table class="table table-hover" style="margin-top: 5vw; width: 80vw">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col" style="width: 40vw; text-align: center">댓글</th>
+            <th scope="col" style="width: 15vw">글쓴이</th>
+            <th scope="col" style="width: 15vw">작성일</th>
+            <th scope="col" style="width: 15vw">
+              <button>댓글</button>
+            </th>
+          </tr>
+          <form action="/Community/">
+            <tr>
+              <th><input type="text" style="width: 40vw;"></th>
+              <th><input type="text" style="width: 15vw;"></th>
+              <th><input type="text" style="width: 15vw;"></th>
+              <th>
+                <!-- <input type="text" style="width: 15vw;"> -->
+                <button class="save">저장</button>
+              </th>
+            </tr>
+          </form>
+        </thead>
+
+        <tbody>
+          {% for comment in Comments %}
+          <tr>
+            <td scope="row">{{comment.content}}</td>
+            <td>{{comment.commenter}}</td>
+            <td>{{comment.date}}</td>
+            <td></td>
+          </tr> 
+          {% endfor %}
+        </tbody>
+        
+      </table>
+    </div>
 
     <script>
-      // $("#login-btn").on("click", function () {
-      //   $(".black-bg").addClass("show-modal");
-      // });
-
-      // $("#close").on("click", function () {
-      //   $(".black-bg").removeClass("show-modal");
-      // });
+      
     </script>
 
     <script
@@ -89,9 +117,22 @@
       crossorigin="anonymous"
     ></script>
 
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
-      document.querySelector(".delete").addEventListener("click", function (e) {
-        axios.delete("/Community/delete/{{board.post_id}}");
+      const postId = document.querySelector(".id").value;
+      console.log(postId);
+      document.querySelector("#delete").addEventListener("click", function (e) {
+        axios
+          .delete(`/Community/delete/${postId}`)
+          .then((res) => {
+            console.log(res.data);
+            location.href = "/Community";
+          })
+          .catch((err) => console.log(err));
+      });
+
+      document.querySelector('#save').addEventListener("click", function(e) {
+        axios.post
       });
     </script>
   </body>

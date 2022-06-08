@@ -2,6 +2,10 @@
   scroll-behavior: auto;
 }
 
+.buttons {
+  background-color: red;
+}
+
 .alert-box {
   background-color: skyblue;
   padding: 20px;

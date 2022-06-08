@@ -5,6 +5,8 @@ const session = require("express-session");
 const dotenv = require("dotenv");
 const path = require("path");
 const nunjucks = require("nunjucks");
+// change for POST method to PUT or DELETE
+const methodOverride = require("method-override");
 var fs = require("fs");
 dotenv.config();
 const indexRouter = require("./routes");
@@ -20,6 +22,7 @@ app.use(morgan("dev"));
 app.use("/", express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(methodOverride("_method"));
 
 console.log(__dirname);
 app.set("port", process.env.PORT || 3000);
