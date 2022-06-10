@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Community-add</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
@@ -33,7 +34,13 @@
           </tr>
           <tr>
             <td>
-              <input type="text" name="inputWriter" placeholder="작성자 ID" />
+              <input
+                type="text"
+                name="inputWriter"
+                placeholder="작성자 ID"
+                value="{{user.id}}"
+                readonly
+              />
             </td>
           </tr>
           <tr>

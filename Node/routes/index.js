@@ -5,21 +5,64 @@ const router = express.Router();
 const moment = require("moment");
 const { now } = require("moment");
 
-// GET / 라우터
-router.get("/", (req, res) => {
-  res.render("MainPage/MainPage.html", { title: "Express" });
-});
+// 로그인 확인용 변수
+let IsLogined;
+
+// GET / POST 라우터
+router
+  .route("/")
+  .post(async (req, res) => {
+    console.log("req.method", req.method);
+    console.log("post.(/)의 IsLogined", IsLogined);
+    req.session.IsLogined = IsLogined;
+    console.log("post.(/)의 req session", req.session);
+    return res.send(req.session);
+  })
+  .get(async (req, res) => {
+    try {
+      const user = await req.session.IsLogined;
+      console.log("get 요청 : ", user);
+      res.render("MainPage/ALP1.html", { user });
+    } catch (error) {
+      console.error(error);
+    }
+  });
 
 router.get("/login", (req, res) => {
-  // if(req.headers.cookie === undefined){
-  //    res.render('MainPage/MainPage.html')
-  // }else if(req.headers.cookies){
   res.render("login/login.html", { title: "Express" });
-  // }
 });
+
+router.get("/logout", (req, res) => {
+  console.log("세션 삭제");
+  IsLogined = null;
+  req.session.IsLogined = null;
+
+  console.log("/logout의 req.session", req.session);
+
+  res.redirect("/");
+});
+
+router
+  .route("/logined")
+  .get((req, res) => {
+    IsLogined = req.session.IsLogined;
+    req.session.save(() => {
+      console.log("세션 생성 완료");
+      res.redirect("/");
+    });
+  })
+
+  .post((req, res) => {
+    IsLogined = req.body.user;
+    req.session.IsLogined = IsLogined;
+    console.log("/logined 의 post", IsLogined);
+    console.log("post logined에서 받은 req.body", req.session.IsLogined);
+    req.session.save(res.redirect("/"));
+  });
 
 // 공지사항 전체 리스트
 router.get("/Notice", async (req, res, next) => {
+  const user = await req.session.IsLogined;
   const Notices = await Board.findAll({
     order: [["post_id", "DESC"]],
     offset: 0,
@@ -27,15 +70,12 @@ router.get("/Notice", async (req, res, next) => {
   Notices.forEach((el) => {
     el.dataValues.date = moment(el.dataValues.date).format("YYYY-MM-DD");
   });
-  res.render("Notice/notice", { Notices });
-});
-
-router.get("/Community-add", (req, res) => {
-  res.render("Community/Community-add", { title: "Express" });
+  res.render("Notice/notice", { Notices, user });
 });
 
 // 커뮤니티 전체 리스트
 router.get("/Community", async (req, res, next) => {
+  const user = await req.session.IsLogined;
   const boarders = await Board.findAll({
     order: [["post_id", "DESC"]],
     offset: 0,
@@ -43,13 +83,15 @@ router.get("/Community", async (req, res, next) => {
   boarders.forEach((el) => {
     el.dataValues.date = moment(el.dataValues.date).format("YYYY-MM-DD");
   });
-  res.render("Community/Community", { boarders });
+  res.render("Community/Community", { boarders, user });
 });
 
 router.get("/Community-add", (req, res) => {
-  res.render("Community/Community-add", { title: "Express" });
+  const user = req.session.IsLogined;
+  res.render("Community/Community-add", { user });
 });
 
+// 글 작성
 router.post("/Community", async (req, res, next) => {
   try {
     let body = req.body;
@@ -71,6 +113,7 @@ router.post("/Community", async (req, res, next) => {
 // select
 router.get("/Community/:postId", async (req, res, next) => {
   try {
+    const user = await req.session.IsLogined;
     const { postId } = req.params;
     const board = await Board.findOne({ where: { post_id: postId } });
     //   밑에 날짜 처리하니 깨짐
@@ -90,7 +133,7 @@ router.get("/Community/:postId", async (req, res, next) => {
     });
 
     console.log(comments);
-    res.render("Community/Community-detail", { board, comments });
+    res.render("Community/Community-detail", { board, comments, user });
   } catch (err) {
     next(err);
   }
@@ -123,9 +166,10 @@ router.post("/Community/comment/:postId", async (req, res, next) => {
 
 // 업데이트 창 가져오기
 router.get("/Community/:postId/update", async (req, res, next) => {
+  const user = await req.session.IsLogined;
   const { postId } = req.params;
   const board = await Board.findOne({ where: { post_id: postId } });
-  res.render("Community/Community-update", { board });
+  res.render("Community/Community-update", { board, user });
   // 제목
   // 작성자
   // 내용
@@ -160,11 +204,12 @@ router.put("/Community/update/:postId", async (req, res, next) => {
 
 // comment update 창 가져오기
 router.get("/Community/comment/update/:comment_id", async (req, res, next) => {
+  const user = await req.session.IsLogined;
   console.log(req.params);
   const { comment_id } = req.params;
   // console.log(commentId);
   const comment = await Comment.findOne({ where: { comment_id: comment_id } });
-  res.render("Community/Community__comment-update", { comment });
+  res.render("Community/Community__comment-update", { comment, user });
   // 제목
   // 작성자
   // 내용
@@ -215,14 +260,13 @@ router.delete(
   }
 );
 
+// 체크 해볼 부분임 ================================================================
 router.get("/Schedule", (req, res) => {
   res.render("Schedule/Schedule");
 });
-router.get("/register", (req, res) => {
+
+router.get("/login/register", (req, res) => {
   res.render("Register/signup");
-});
-router.get("/schedule", (req, res) => {
-  res.render("Schedule/schedule");
 });
 
 router.get("/gongji", (req, res) => {
@@ -239,5 +283,6 @@ router.get("/profile", (req, res) => {
     class: req.body.class,
   });
 });
-
 module.exports = router;
+
+//  ================================================================ 체크 해볼 부분임
