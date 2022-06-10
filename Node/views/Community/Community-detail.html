@@ -60,13 +60,12 @@
         type="button"
         onclick="location.href='/Community/{{board.post_id}}/update'"
         style="cursor: hand"
-        class="btn"
-        method="delete"
+        class="btn" 
       >
-        수정
+        글 수정
       </button>
       <button type="button" style="cursor: hand" class="btn" id="delete">
-        삭제
+        글 삭제
       </button>
     </div>
     <table class="table table-hover" style="margin-top: 5vw; width: 80vw">
@@ -77,29 +76,39 @@
             <th scope="col" style="width: 15vw">글쓴이</th>
             <th scope="col" style="width: 15vw">작성일</th>
             <th scope="col" style="width: 15vw">
-              <button>댓글</button>
+              <button class="btn">댓글</button>
             </th>
           </tr>
-          <form action="/Community/">
+          <form action="/Community/comment/{{board.post_id}}" method="POST">
             <tr>
-              <th><input type="text" style="width: 40vw;"></th>
-              <th><input type="text" style="width: 15vw;"></th>
-              <th><input type="text" style="width: 15vw;"></th>
+              <th><input type="text" style="width: 40vw;" name="inputContent"></th>
+              <th><input type="text" style="width: 15vw;" name="inputCommentWriter"></th>
+              <th><input type="text" style="width: 15vw;" name="" disabled></th>
               <th>
-                <!-- <input type="text" style="width: 15vw;"> -->
-                <button class="save">저장</button>
+                <!-- 없어도 됨 -->
+                <!-- <input type="hidden" name="inputPostId" value="{{board.post_id}}"> -->
+                <input type="submit" class="save" value="저장"></input>
               </th>
             </tr>
           </form>
         </thead>
 
         <tbody>
-          {% for comment in Comments %}
-          <tr>
-            <td scope="row">{{comment.content}}</td>
+          {% for comment in comments %}
+          <tr id={{comment.comment_id}}>
+            <td scope="row" style="display:none;" value="{{board.post_id}}"></td>
+            <td>{{comment.content}}</td>
             <td>{{comment.commenter}}</td>
             <td>{{comment.date}}</td>
-            <td></td>
+            <td>
+              <button
+                type="button"
+                onclick="location.href='/Community/comment/update/{{comment.comment_id}}'"
+                style="cursor: hand"
+                class="btn" 
+              >수정</button>
+              <button class="deleteBtn btn" name="{{comment.comment_id}}" style="cursor: hand">삭제</button>
+            </td>
           </tr> 
           {% endfor %}
         </tbody>
@@ -118,9 +127,12 @@
     ></script>
 
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    
     <script>
       const postId = document.querySelector(".id").value;
       console.log(postId);
+
+      // 글 삭제
       document.querySelector("#delete").addEventListener("click", function (e) {
         axios
           .delete(`/Community/delete/${postId}`)
@@ -131,9 +143,21 @@
           .catch((err) => console.log(err));
       });
 
-      document.querySelector('#save').addEventListener("click", function(e) {
-        axios.post
-      });
+      const deleteBtns = document.querySelectorAll(".deleteBtn");
+      // 댓글 삭제
+      for (const deleteBtn of deleteBtns) {
+        deleteBtn.addEventListener('click', function(e) {
+          commentId = (e.target.parentNode.parentNode.id);
+          axios
+          .delete(`/Community/comment/delete/${commentId}`)
+          .then((res) => {
+            console.log(res.data);
+            location.href = `/Community/${postId}`;
+          })
+          .catch((err) => console.log(err));
+        })
+      }
+
     </script>
   </body>
 </html>
