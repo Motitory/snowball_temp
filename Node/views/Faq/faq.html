@@ -26,20 +26,32 @@
     <div class="wrapper">
       {% for item in faqs %}
       <div class="container">
+        <input type="hidden" value="{{item.post_id}}" class="post-id" />
+        <input type="hidden" value="{{user.id}}" class="user-id" />
+        <input type="hidden" value="{{user.grade}}" class="user-grade" />
         <div class="question">{{item.question}}</div>
         <div class="answercont">
           <div class="answer">
             {{item.answer}}<br /><br />
-            <!-- {% if user.grade == 3 %}
+            {% if user.grade == 3 %}
             <button
               type="button"
               onclick="location.href='/Faq/update/{{item.post_id}}'"
               style="cursor: hand"
-              class="btn"
+              class="btn update"
+              id="update"
             >
               글 수정
             </button>
-            {% endif %} -->
+            <button
+              type="button"
+              style="cursor: hand"
+              class="btn delete"
+              id="delete"
+            >
+              글 삭제
+            </button>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -73,6 +85,50 @@
             answer.style.maxHeight = 0;
           }
         });
+      });
+    </script>
+    <script>
+      // const postId = document.querySelector(".post-id").value;
+      // const userId = document.querySelector(".user-id").value;
+      // const faqId = document.querySelector(".id").value;
+      // const userGrade = document.querySelector(".user-grade").value;
+      // console.log(postId);
+
+      // 글 삭제
+      document.querySelector(".delete").addEventListener("click", function (e) {
+        let userGrade = document.querySelector(".user-grade").value;
+        let postId = document.querySelector(".post-id").value;
+        console.log(userGrade, postId);
+        if (userGrade != 3) {
+          alert("관리자 권한이 없습니다.");
+          window.location.href = `/Faq`;
+        } else {
+          axios
+            .delete(`/Faq/delete/${postId}`)
+            .then((res) => {
+              console.log(res.data);
+              location.href = "/Faq";
+            })
+            .catch((err) => console.log(err));
+        }
+      });
+
+      // 글 수정 관리자 권한 체크
+      document.querySelector(".update").addEventListener("click", function (e) {
+        let userGrade = document.querySelector(".user-grade").value;
+        let postId = document.querySelector(".post-id").value;
+        if (userGrade != 3) {
+          alert("관리자 권한이 없습니다.");
+          window.location.href = `/Faq/${postId}`;
+        } else {
+          axios
+            .get(`/Faq/update/${postId}`)
+            .then((res) => {
+              console.log(res.data);
+              location.href = `/Faq/update/${postId}`;
+            })
+            .catch((err) => console.log(err));
+        }
       });
     </script>
   </body>

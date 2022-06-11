@@ -154,7 +154,7 @@ router.delete("/Faq/delete/:postId", async (req, res, next) => {
   console.log("====================");
   console.log(postId);
   console.log("====================");
-  const faq = await Notice.destroy({ where: { post_id: postId } });
+  const faq = await Faq.destroy({ where: { post_id: postId } });
   return res.send("success");
 });
 // =========================================================================================================================
