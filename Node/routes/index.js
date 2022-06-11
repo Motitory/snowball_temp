@@ -1,6 +1,8 @@
 const express = require("express");
 const Board = require("../models/board");
 const Comment = require("../models/comment");
+const Notice = require("../models/notice");
+const Faq = require("../models/faq");
 const router = express.Router();
 const moment = require("moment");
 const { now } = require("moment");
@@ -51,7 +53,6 @@ router
       res.redirect("/");
     });
   })
-
   .post((req, res) => {
     IsLogined = req.body.user;
     req.session.IsLogined = IsLogined;
@@ -60,19 +61,198 @@ router
     req.session.save(res.redirect("/"));
   });
 
-// 공지사항 전체 리스트
-router.get("/Notice", async (req, res, next) => {
+// =========================================================================================================================
+
+// FAQ
+// FAQ 전체 리스트
+router.get("/Faq", async (req, res, next) => {
   const user = await req.session.IsLogined;
-  const Notices = await Board.findAll({
+  const faqs = await Faq.findAll({
     order: [["post_id", "DESC"]],
     offset: 0,
   });
-  Notices.forEach((el) => {
+  faqs.forEach((el) => {
     el.dataValues.date = moment(el.dataValues.date).format("YYYY-MM-DD");
   });
-  res.render("Notice/notice", { Notices, user });
+  console.log(faqs);
+  console.log(user);
+  res.render("Faq/faq", { faqs, user });
 });
 
+// FAQ 작성창
+router.get("/faq-add", (req, res) => {
+  const user = req.session.IsLogined;
+  res.render("Faq/faq-add", { user });
+});
+
+// FAQ 작성
+router.post("/Faq", async (req, res, next) => {
+  try {
+    let body = req.body;
+    await Faq.create({
+      question: body.inputQuestion,
+      answer: body.inputAnswer,
+      boarder: body.inputWriter,
+    });
+    res.redirect("/Faq");
+  } catch (err) {
+    next(err);
+  }
+});
+
+// // FAQ 상세페이지
+// router.get("/Notice/:postId", async (req, res, next) => {
+//   try {
+//     const user = await req.session.IsLogined;
+//     const { postId } = req.params;
+//     const notice = await Notice.findOne({ where: { post_id: postId } });
+//     res.render("Notice/notice-detail", { notice, user });
+//   } catch (err) {
+//     // error 처리
+//     next(err);
+//   }
+// });
+
+// FAQ 업데이트 작성창
+router.get("/Faq/update/:postId", async (req, res, next) => {
+  const user = await req.session.IsLogined;
+  const { postId } = req.params;
+  const faq = await Faq.findOne({ where: { post_id: postId } });
+  res.render("Faq/faq-update", { faq, user });
+});
+
+// FAQ 업데이트
+router.put("/Faq/update/:postId", async (req, res, next) => {
+  try {
+    let body = req.body;
+    console.log("=========================");
+    console.log(body);
+    console.log(body.inputContent);
+    console.log("=========================");
+    await Faq.update(
+      {
+        //   post_id: this.post_id,
+        question: body.inputQuestion,
+        answer: body.inputAnswer,
+        boarder: body.inputWriter,
+        //   date: now,
+      },
+      {
+        where: { post_id: req.params.postId },
+      }
+    );
+    res.redirect("/Faq");
+    return res.status(200).send("success");
+  } catch (err) {
+    next(err);
+  }
+});
+
+// FAQ 삭제
+router.delete("/Faq/delete/:postId", async (req, res, next) => {
+  const { postId } = req.params;
+  console.log("====================");
+  console.log(postId);
+  console.log("====================");
+  const faq = await Notice.destroy({ where: { post_id: postId } });
+  return res.send("success");
+});
+// =========================================================================================================================
+
+// 공지사항 전체 리스트
+router.get("/Notice", async (req, res, next) => {
+  const user = await req.session.IsLogined;
+  const notices = await Notice.findAll({
+    order: [["post_id", "DESC"]],
+    offset: 0,
+  });
+  notices.forEach((el) => {
+    el.dataValues.date = moment(el.dataValues.date).format("YYYY-MM-DD");
+  });
+  console.log(notices);
+  res.render("Notice/notice", { notices, user });
+});
+
+// 공지사항 작성창
+router.get("/notice-add", (req, res) => {
+  const user = req.session.IsLogined;
+  res.render("Notice/notice-add", { user });
+});
+
+// 공지사항 작성
+router.post("/Notice", async (req, res, next) => {
+  try {
+    let body = req.body;
+    await Notice.create({
+      title: body.inputTitle,
+      content: body.inputContent,
+      noticer: body.inputWriter,
+    });
+    res.redirect("/Notice");
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 공지사항 상세페이지
+router.get("/Notice/:postId", async (req, res, next) => {
+  try {
+    const user = await req.session.IsLogined;
+    const { postId } = req.params;
+    const notice = await Notice.findOne({ where: { post_id: postId } });
+    res.render("Notice/notice-detail", { notice, user });
+  } catch (err) {
+    // error 처리
+    next(err);
+  }
+});
+
+// 공지사항 업데이트 작성창
+router.get("/Notice/update/:postId", async (req, res, next) => {
+  const user = await req.session.IsLogined;
+  const { postId } = req.params;
+  const notice = await Notice.findOne({ where: { post_id: postId } });
+  res.render("Notice/notice-update", { notice, user });
+});
+
+// 공지사항 업데이트
+router.put("/Notice/update/:postId", async (req, res, next) => {
+  try {
+    let body = req.body;
+    console.log("=========================");
+    console.log(body);
+    console.log(body.inputContent);
+    console.log("=========================");
+    await Notice.update(
+      {
+        //   post_id: this.post_id,
+        title: body.inputTitle,
+        content: body.inputContent,
+        boarder: body.inputWriter,
+        //   date: now,
+      },
+      {
+        where: { post_id: req.params.postId },
+      }
+    );
+    res.redirect("/Notice/" + req.params.postId);
+    return res.status(200).send("success");
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 공지사항 삭제
+router.delete("/Notice/delete/:postId", async (req, res, next) => {
+  const { postId } = req.params;
+  console.log("====================");
+  console.log(postId);
+  console.log("====================");
+  const notice = await Notice.destroy({ where: { post_id: postId } });
+  return res.send("success");
+});
+
+// =========================================================================================================================
 // 커뮤니티 전체 리스트
 router.get("/Community", async (req, res, next) => {
   const user = await req.session.IsLogined;
@@ -86,12 +266,13 @@ router.get("/Community", async (req, res, next) => {
   res.render("Community/Community", { boarders, user });
 });
 
+// 커뮤니티 작성 창
 router.get("/Community-add", (req, res) => {
   const user = req.session.IsLogined;
   res.render("Community/Community-add", { user });
 });
 
-// 글 작성
+// 커뮤니티 글 작성
 router.post("/Community", async (req, res, next) => {
   try {
     let body = req.body;
@@ -260,7 +441,7 @@ router.delete(
   }
 );
 
-// 체크 해볼 부분임 ================================================================
+// 체크 해볼 부분임 // =========================================================================================================================
 router.get("/Schedule", (req, res) => {
   res.render("Schedule/Schedule");
 });
