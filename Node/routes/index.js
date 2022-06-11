@@ -100,19 +100,6 @@ router.post("/Faq", async (req, res, next) => {
   }
 });
 
-// // FAQ 상세페이지
-// router.get("/Notice/:postId", async (req, res, next) => {
-//   try {
-//     const user = await req.session.IsLogined;
-//     const { postId } = req.params;
-//     const notice = await Notice.findOne({ where: { post_id: postId } });
-//     res.render("Notice/notice-detail", { notice, user });
-//   } catch (err) {
-//     // error 처리
-//     next(err);
-//   }
-// });
-
 // FAQ 업데이트 작성창
 router.get("/Faq/update/:postId", async (req, res, next) => {
   const user = await req.session.IsLogined;
@@ -200,6 +187,7 @@ router.get("/Notice/:postId", async (req, res, next) => {
     const user = await req.session.IsLogined;
     const { postId } = req.params;
     const notice = await Notice.findOne({ where: { post_id: postId } });
+    console.log(notice);
     res.render("Notice/notice-detail", { notice, user });
   } catch (err) {
     // error 처리
