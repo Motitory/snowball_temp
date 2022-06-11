@@ -24,7 +24,7 @@ router
         name: req.body.name,
         tel: req.body.tel,
         email: req.body.email,
-        grade: req.body.grade,
+        // grade: req.body.grade,
         yjuclass: req.body.yjuclass,
       });
       console.log("등록된 유저명 : ", user);
