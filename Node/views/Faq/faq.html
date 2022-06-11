@@ -47,7 +47,8 @@
               type="button"
               style="cursor: hand"
               class="btn delete"
-              id="delete"
+              id="{{item.post_id}}"
+              onclick="deleteClick(this.id)"
             >
               글 삭제
             </button>
@@ -95,9 +96,27 @@
       // console.log(postId);
 
       // 글 삭제
-      document.querySelector(".delete").addEventListener("click", function (e) {
+      // document.querySelector(".delete").addEventListener("click", function (e) {
+      //   let userGrade = document.querySelector(".user-grade").value;
+      //   let postId = document.querySelector(".post-id").value;
+      //   console.log(userGrade, postId);
+      //   if (userGrade != 3) {
+      //     alert("관리자 권한이 없습니다.");
+      //     window.location.href = `/Faq`;
+      //   } else {
+      //     axios
+      //       .delete(`/Faq/delete/${postId}`)
+      //       .then((res) => {
+      //         console.log(res.data);
+      //         location.href = "/Faq";
+      //       })
+      //       .catch((err) => console.log(err));
+      //   }
+      // });
+
+      function deleteClick(clicked_id) {
         let userGrade = document.querySelector(".user-grade").value;
-        let postId = document.querySelector(".post-id").value;
+        let postId = clicked_id;
         console.log(userGrade, postId);
         if (userGrade != 3) {
           alert("관리자 권한이 없습니다.");
@@ -111,7 +130,7 @@
             })
             .catch((err) => console.log(err));
         }
-      });
+      }
 
       // 글 수정 관리자 권한 체크
       document.querySelector(".update").addEventListener("click", function (e) {
